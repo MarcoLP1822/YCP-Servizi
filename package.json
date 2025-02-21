@@ -3,24 +3,31 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-      "dev": "next dev",
-      "build": "next build",
-      "start": "next start",
-      "lint": "next lint",
-      "format": "prettier --write ."
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint",
+        "format": "prettier --write ."
     },
     "dependencies": {
-      "next": "latest",
-      "react": "latest",
-      "react-dom": "latest"
+        "drizzle-orm": "^0.39.3",
+        "formidable": "^3.5.2",
+        "mammoth": "^1.9.0",
+        "next": "latest",
+        "pdf-parse": "^1.1.1",
+        "pg": "^8.13.3",
+        "react": "latest",
+        "react-dom": "latest"
     },
     "devDependencies": {
-      "typescript": "latest",
-      "eslint": "latest",
-      "eslint-config-next": "latest",
-      "prettier": "latest",
-      "@typescript-eslint/parser": "latest",
-      "@typescript-eslint/eslint-plugin": "latest"
+        "@types/formidable": "^3.4.5",
+        "@types/node": "^22.13.4",
+        "@types/pg": "^8.11.11",
+        "@typescript-eslint/eslint-plugin": "latest",
+        "@typescript-eslint/parser": "latest",
+        "eslint": "latest",
+        "eslint-config-next": "latest",
+        "prettier": "latest",
+        "typescript": "latest"
     }
-  }
-  
+}
