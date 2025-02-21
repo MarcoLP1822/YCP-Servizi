@@ -59,7 +59,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // Parsing dei dati del form
     const { files } = await parseForm(req);
-    const uploadedFile = files.file as FormidableFile;
+    // Gestione del caso in cui files.file possa essere un array
+    const uploaded = files.file;
+    let uploadedFile: FormidableFile | undefined;
+    if (Array.isArray(uploaded)) {
+      uploadedFile = uploaded[0];
+    } else {
+      uploadedFile = uploaded;
+    }
 
     if (!uploadedFile) {
       return res.status(400).json({ error: 'Nessun file caricato.' });
