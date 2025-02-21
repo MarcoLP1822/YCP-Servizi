@@ -7,7 +7,7 @@
  * - Uses bcrypt for secure password hashing and verification.
  * - Uses jsonwebtoken for JWT token generation and verification.
  *
- * Dependencies:
+ * @dependencies
  * - bcrypt: For hashing and comparing passwords.
  * - jsonwebtoken: For generating and verifying JWT tokens.
  *
@@ -17,12 +17,13 @@
  */
 
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 
 // Set bcrypt salt rounds
 const SALT_ROUNDS = 10;
+
 // Get JWT secret from environment variables; fallback is provided for development purposes only.
-const JWT_SECRET = process.env.JWT_SECRET || 'default_jwt_secret';
+const JWT_SECRET: string = process.env.JWT_SECRET || 'default_jwt_secret';
 
 /**
  * Hashes a plain text password using bcrypt.
@@ -49,11 +50,13 @@ export async function comparePassword(password: string, hashedPassword: string):
  * Generates a JWT token for a given user payload.
  *
  * @param payload - The payload to embed in the token.
- * @param expiresIn - Token expiry time (default is 1h).
+ * @param expiresIn - Token expiry time (default is '1h').
  * @returns A signed JWT token.
  */
 export function generateToken(payload: object, expiresIn: string = '1h'): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn });
+  // Cast expiresIn to any to bypass type checking issues with the expiresIn field.
+  const options: SignOptions = { expiresIn: expiresIn as any };
+  return jwt.sign(payload, JWT_SECRET, options);
 }
 
 /**
