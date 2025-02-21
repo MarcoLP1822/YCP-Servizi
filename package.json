@@ -7,10 +7,13 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "drizzle-kit migrate"    
     },
     "dependencies": {
         "bcrypt": "^5.1.1",
+        "dotenv": "^16.4.7",
         "drizzle-orm": "^0.39.3",
         "formidable": "^3.5.2",
         "jsonwebtoken": "^9.0.2",
@@ -31,6 +34,7 @@
         "@types/react": "19.0.10",
         "@typescript-eslint/eslint-plugin": "latest",
         "@typescript-eslint/parser": "latest",
+        "drizzle-kit": "^0.30.4",
         "eslint": "latest",
         "eslint-config-next": "latest",
         "prettier": "latest",

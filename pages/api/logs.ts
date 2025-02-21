@@ -5,7 +5,8 @@
  * {
  *   "user_id": "string",
  *   "action_type": "string",
- *   "description": "string"
+ *   "description": "string",
+ *   "metadata": { ... } // Optional additional metadata
  * }
  *
  * The endpoint uses the logService to record the log entry in the database.
@@ -33,7 +34,7 @@ export default async function handler(
   }
 
   try {
-    const { user_id, action_type, description } = req.body;
+    const { user_id, action_type, description, metadata } = req.body;
 
     // Validate required fields
     if (!user_id || !action_type || !description) {
@@ -42,8 +43,8 @@ export default async function handler(
       });
     }
 
-    // Record the log entry using the log service
-    const logEntry = await recordLog(user_id, action_type, description);
+    // Record the log entry using the log service, including optional metadata if provided
+    const logEntry = await recordLog(user_id, action_type, description, metadata);
 
     return res.status(200).json({
       message: 'Log registrato con successo.',

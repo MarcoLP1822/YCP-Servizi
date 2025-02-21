@@ -5,7 +5,7 @@
  * AI generation, editing, sharing) and to manage session history records.
  *
  * Key features:
- * - recordLog: Inserts a log record into the Logs table.
+ * - recordLog: Inserts a log record into the Logs table with detailed metadata.
  * - recordSessionHistory: Inserts a session history record into the SessionHistory table.
  * - getSessionHistory: Retrieves session history records for a specific user.
  *
@@ -30,12 +30,14 @@ import { eq } from 'drizzle-orm';
  * @param userId - The unique identifier of the user performing the action.
  * @param actionType - A brief string describing the type of action (e.g., "upload", "generate", "edit", "share").
  * @param description - A detailed description of the action performed.
+ * @param metadata - Optional additional metadata providing context for the log entry.
  * @returns A promise that resolves to the inserted log record.
  */
 export async function recordLog(
   userId: string,
   actionType: string,
-  description: string
+  description: string,
+  metadata?: object
 ): Promise<any> {
   try {
     const result = await db
@@ -44,6 +46,7 @@ export async function recordLog(
         user_id: userId,
         action_type: actionType,
         description: description,
+        metadata: metadata || null,
       })
       .returning();
     return result[0];
