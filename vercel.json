@@ -1,0 +1,22 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "next.config.js",
+        "use": "@vercel/next"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "/$1"
+      }
+    ],
+    "env": {
+      "DATABASE_URL": "@database_url",
+      "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key",
+      "OPENAI_API_KEY": "@openai_api_key",
+      "JWT_SECRET": "@jwt_secret"
+    }
+  }
+  

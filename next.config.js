@@ -13,7 +13,7 @@
 const nextConfig = {
     reactStrictMode: true,
     env: {
-      SUPABASE_URL: process.env.SUPABASE_URL,
+      DATABASE_URL: process.env.DATABASE_URL,
       SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,
       JWT_SECRET: process.env.JWT_SECRET,
