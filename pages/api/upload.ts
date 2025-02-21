@@ -2,12 +2,14 @@
  * @description
  * Questo endpoint API gestisce il caricamento dei file. Valida il tipo di file (solo DOCX e PDF)
  * e la dimensione (max 30MB), quindi processa il file usando le librerie di parsing (Mammoth per DOCX e pdf-parse per PDF).
- * I metadati del file vengono salvati nel database (tramite un'istanza `db` configurata con Drizzle ORM) e il testo estratto viene restituito nella risposta.
+ * I metadati del file vengono salvati nel database (tramite un'istanza `db` configurata con Drizzle ORM) e il testo estratto,
+ * insieme ad una analisi tecnica del documento, viene restituito nella risposta.
  *
  * @dependencies
  * - formidable: Per il parsing dei dati multipart.
  * - fs & path: Per operazioni sul file system.
  * - backend/services/fileParser.ts: Contiene le funzioni per il parsing di file DOCX e PDF.
+ * - backend/services/fileAnalysis.ts: Contiene la funzione di analisi tecnica del testo.
  * - backend/db.ts: Modulo per la connessione al database.
  *
  * @notes
@@ -20,6 +22,7 @@ import formidable, { File as FormidableFile, Fields, Files } from 'formidable';
 import fs from 'fs';
 import path from 'path';
 import { parseDocx, parsePdf } from '../../backend/services/fileParser';
+import { analyzeDocument } from '../../backend/services/fileAnalysis';
 import { Files as FilesTable } from '../../backend/models/File';
 // Assumiamo che il modulo db sia configurato correttamente
 import { db } from '../../backend/db';
@@ -103,6 +106,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Estensione file non supportata.' });
     }
 
+    // Esegue l'analisi tecnica sul testo estratto
+    const technicalAnalysis = analyzeDocument(extractedText);
+
     // Salvataggio dei metadati del file nel database (utilizzando Drizzle ORM)
     // Nota: Sostituisci 'some-user-uuid' con l'ID reale dell'utente autenticato
     const newFile = await db.insert(FilesTable).values({
@@ -114,11 +120,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       processing_status: 'complete',
     }).returning();
 
-    // Restituzione della risposta con il testo estratto e i metadati del file
+    // Restituzione della risposta con il testo estratto, l'analisi tecnica e i metadati del file
     return res.status(200).json({
       message: 'File caricato e processato con successo.',
       file: newFile,
       extractedText,
+      technicalAnalysis,
     });
   } catch (error: any) {
     console.error('Errore nel caricamento del file:', error);
