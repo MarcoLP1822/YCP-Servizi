@@ -4,7 +4,7 @@ process.env.OPENAI_API_KEY = 'test-api-key';
 /**
  * @fileoverview
  * This file contains unit tests for the OpenAI service integration in
- * backend/services/openaiService.ts. It tests that the generateContent function
+ * backend/services/openaiService.ts. It tests that the generateBlurb function
  * properly handles successful responses, API errors, and cases where the API response
  * does not include generated text.
  *
@@ -21,11 +21,11 @@ process.env.OPENAI_API_KEY = 'test-api-key';
  *   "Impossibile generare il contenuto al momento." in error cases.
  */
 
-import { generateContent } from '../../backend/services/openaiService';
+import { generateBlurb } from '../../backend/services/openaiService';
 
 global.fetch = jest.fn();
 
-describe('OpenAI Service', () => {
+describe('OpenAI Service - generateBlurb', () => {
   it('should generate content successfully for valid input', async () => {
     const fakeResponse = {
       ok: true,
@@ -36,7 +36,7 @@ describe('OpenAI Service', () => {
       })
     };
     (<jest.Mock>global.fetch).mockResolvedValue(fakeResponse);
-    const result = await generateContent('blurb', 'Test extracted text');
+    const result = await generateBlurb('Test extracted text');
     expect(result).toBe('Generated content text');
   });
 
@@ -47,7 +47,7 @@ describe('OpenAI Service', () => {
       text: async () => 'Error details'
     };
     (<jest.Mock>global.fetch).mockResolvedValue(fakeResponse);
-    await expect(generateContent('description', 'Test text')).rejects.toThrow('Impossibile generare il contenuto al momento.');
+    await expect(generateBlurb('Test text')).rejects.toThrow('Impossibile generare il contenuto al momento.');
   });
 
   it('should throw an error if generated text is missing', async () => {
@@ -56,6 +56,6 @@ describe('OpenAI Service', () => {
       json: async () => ({ choices: [{}] })
     };
     (<jest.Mock>global.fetch).mockResolvedValue(fakeResponse);
-    await expect(generateContent('keywords', 'Test text')).rejects.toThrow('Impossibile generare il contenuto al momento.');
+    await expect(generateBlurb('Test text')).rejects.toThrow('Impossibile generare il contenuto al momento.');
   });
 });
