@@ -3,6 +3,7 @@
  * Questo endpoint API gestisce il caricamento dei file.
  * Valida il tipo di file (DOCX o PDF) e la dimensione, estrae il testo usando le librerie Mammoth o pdf-parse,
  * esegue l'analisi tecnica e registra i metadati nel database.
+ * Ora, l'endpoint richiede l'autenticazione tramite il middleware withAuth.
  *
  * @dependencies
  * - formidable per il parsing dei form multipart.
@@ -10,6 +11,7 @@
  * - backend/services/fileParser.ts per il parsing dei file.
  * - backend/services/fileAnalysis.ts per l'analisi tecnica.
  * - backend/db.ts e backend/models/File.ts per l'accesso al database.
+ * - backend/middleware/authMiddleware.ts per l'autenticazione.
  *
  * @notes
  * - Gli errori sono gestiti con "unknown" per conformarsi alle regole ESLint.
@@ -23,6 +25,7 @@ import { parseDocx, parsePdf } from '../../backend/services/fileParser';
 import { analyzeDocument } from '../../backend/services/fileAnalysis';
 import { Files as FilesTable } from '../../backend/models/File';
 import { db } from '../../backend/db';
+import { withAuth, AuthenticatedNextApiRequest } from '../../backend/middleware/authMiddleware';
 
 export const config = {
   api: {
@@ -51,7 +54,7 @@ const parseForm = (req: NextApiRequest): Promise<{ fields: Fields; files: Files 
   });
 };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Metodo non consentito. Utilizzare POST.' });
   }
@@ -106,10 +109,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Esegue l'analisi tecnica sul testo estratto
     const technicalAnalysis = analyzeDocument(extractedText);
 
+    // Ottiene l'ID dell'utente autenticato dal middleware
+    const authReq = req as AuthenticatedNextApiRequest;
+
     // Salvataggio dei metadati del file nel database
-    // Nota: sostituisci 'some-user-uuid' con l'ID reale dell'utente autenticato.
     const newFile = await db.insert(FilesTable).values({
-      user_id: 'some-user-uuid',
+      user_id: authReq.user.user_id, // Usare l'ID utente autenticato
       file_name: uploadedFile.originalFilename || 'Unknown',
       file_type: uploadedFile.mimetype || 'Unknown',
       file_size: uploadedFile.size,
@@ -128,4 +133,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error('Errore nel caricamento del file:', error);
     return res.status(500).json({ error: 'Errore interno del server.' });
   }
-}
+};
+
+export default withAuth(handler);

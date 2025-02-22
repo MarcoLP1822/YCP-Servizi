@@ -2,11 +2,14 @@
  * @fileoverview
  * Questo endpoint API gestisce la sessione utente.
  * Supporta due metodi:
- * - POST: Registra una nuova sessione con user_id, file_id e actions.
- * - GET: Recupera le sessioni per un utente specificato tramite query parameter user_id.
+ * - POST: Registra una nuova sessione utilizzando l'ID dell'utente autenticato e i dati del file.
+ * - GET: Recupera le sessioni per l'utente autenticato.
+ * 
+ * Ora, l'endpoint richiede l'autenticazione tramite il middleware withAuth.
  *
  * @dependencies
  * - backend/services/logService.ts per registrare e recuperare la sessione.
+ * - backend/middleware/authMiddleware.ts per l'autenticazione.
  *
  * @notes
  * - Gli errori sono gestiti con "unknown" per conformarsi alle regole ESLint.
@@ -14,24 +17,25 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { recordSessionHistory, getSessionHistory } from '../../backend/services/logService';
+import { withAuth, AuthenticatedNextApiRequest } from '../../backend/middleware/authMiddleware';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  const authReq = req as AuthenticatedNextApiRequest; // Type cast to include user information
+
   if (req.method === 'POST') {
     try {
-      const { user_id, file_id, actions } = req.body;
+      // In POST, we no longer expect "user_id" in the body, since we use the authenticated user.
+      const { file_id, actions } = req.body;
 
       // Validate required fields for session creation
-      if (!user_id || !file_id || !actions) {
+      if (!file_id || !actions) {
         return res.status(400).json({
-          error: 'Campi "user_id", "file_id" e "actions" sono obbligatori per creare una sessione.',
+          error: 'Campi "file_id" e "actions" sono obbligatori per creare una sessione.',
         });
       }
 
-      // Record the session history
-      const sessionRecord = await recordSessionHistory(user_id, file_id, actions);
+      // Record the session history using the authenticated user's ID
+      const sessionRecord = await recordSessionHistory(authReq.user.user_id, file_id, actions);
 
       return res.status(200).json({
         message: 'Sessione registrata con successo.',
@@ -45,16 +49,8 @@ export default async function handler(
     }
   } else if (req.method === 'GET') {
     try {
-      // Expect user_id as query parameter
-      const { user_id } = req.query;
-      if (!user_id || typeof user_id !== 'string') {
-        return res.status(400).json({
-          error: 'Parametro "user_id" mancante o non valido.',
-        });
-      }
-
-      // Retrieve session history for the specified user
-      const sessions = await getSessionHistory(user_id);
+      // Retrieve session history for the authenticated user
+      const sessions = await getSessionHistory(authReq.user.user_id);
 
       return res.status(200).json({
         message: 'Sessione recuperata con successo.',
@@ -69,4 +65,6 @@ export default async function handler(
   } else {
     return res.status(405).json({ error: 'Metodo non consentito. Utilizzare GET o POST.' });
   }
-}
+};
+
+export default withAuth(handler);
