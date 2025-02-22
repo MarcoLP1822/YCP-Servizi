@@ -10,6 +10,7 @@
  * - fs e path per operazioni sul file system.
  * - backend/services/fileParser.ts per il parsing dei file.
  * - backend/services/fileAnalysis.ts per l'analisi tecnica.
+ * - backend/utils/fileUtils.ts per la validazione e l'estrazione dell'estensione dei file.
  * - backend/db.ts e backend/models/File.ts per l'accesso al database.
  * - backend/middleware/authMiddleware.ts per l'autenticazione.
  *
@@ -26,6 +27,7 @@ import { analyzeDocument } from '../../backend/services/fileAnalysis';
 import { Files as FilesTable } from '../../backend/models/File';
 import { db } from '../../backend/db';
 import { withAuth, AuthenticatedNextApiRequest } from '../../backend/middleware/authMiddleware';
+import { validateUploadedFile, getFileExtension, allowedMimeTypes } from '../../backend/utils/fileUtils';
 
 export const config = {
   api: {
@@ -75,22 +77,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(400).json({ error: 'Nessun file caricato.' });
     }
 
-    // Validazione della dimensione del file
-    if (uploadedFile.size > MAX_FILE_SIZE) {
-      return res.status(400).json({ error: 'Il file supera il limite di 30MB.' });
+    // Validazione del file tramite funzione di utilità
+    const validationResult = validateUploadedFile(uploadedFile, MAX_FILE_SIZE);
+    if (!validationResult.valid) {
+      return res.status(400).json({ error: validationResult.error });
     }
 
-    // Validazione del tipo di file (DOCX o PDF)
-    const allowedMimeTypes = [
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/pdf',
-    ];
-    if (!allowedMimeTypes.includes(uploadedFile.mimetype || '')) {
-      return res.status(400).json({ error: 'Tipo di file non supportato. Carica solo DOCX o PDF.' });
-    }
-
-    // Determina l'estensione del file per il processing
-    const ext = path.extname(uploadedFile.originalFilename || '').toLowerCase();
+    // Estrae l'estensione del file per il processing
+    const ext = getFileExtension(uploadedFile);
 
     // Lettura del file dalla posizione temporanea
     const fileBuffer = fs.readFileSync(uploadedFile.filepath);
@@ -113,14 +107,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const authReq = req as AuthenticatedNextApiRequest;
 
     // Salvataggio dei metadati del file nel database
-    const newFile = await db.insert(FilesTable).values({
-      user_id: authReq.user.user_id, // Usare l'ID utente autenticato
-      file_name: uploadedFile.originalFilename || 'Unknown',
-      file_type: uploadedFile.mimetype || 'Unknown',
-      file_size: uploadedFile.size,
-      storage_path: uploadedFile.filepath,
-      processing_status: 'complete',
-    }).returning();
+    const newFile = await db
+      .insert(FilesTable)
+      .values({
+        user_id: authReq.user.user_id, // Usare l'ID utente autenticato
+        file_name: uploadedFile.originalFilename || 'Unknown',
+        file_type: uploadedFile.mimetype || 'Unknown',
+        file_size: uploadedFile.size,
+        storage_path: uploadedFile.filepath,
+        processing_status: 'complete',
+      })
+      .returning();
 
     // Restituzione della risposta con il testo estratto, l'analisi tecnica e i metadati del file
     return res.status(200).json({
