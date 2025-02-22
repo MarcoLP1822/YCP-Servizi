@@ -12,7 +12,8 @@
  * - Next.js Link: per la navigazione client-side.
  * 
  * @notes
- * - Gli stili sono di base e possono essere estesi con classi CSS o soluzioni CSS-in-JS.
+ * - Rimosso il tag <a> interno a <Link> per evitare l'errore "Invalid <Link> with <a> child".
+ * - Ora passiamo lo stile direttamente a <Link>.
  */
 
 import React from 'react';
@@ -23,18 +24,18 @@ const Navigation: React.FC = () => {
     <nav>
       <ul style={{ listStyleType: 'none', padding: 0 }}>
         <li style={{ marginBottom: '1rem' }}>
-          <Link href="/">
-            <a style={{ textDecoration: 'none', color: '#1976D2' }}>Dashboard</a>
+          <Link href="/" style={{ textDecoration: 'none', color: '#1976D2' }}>
+            Dashboard
           </Link>
         </li>
         <li style={{ marginBottom: '1rem' }}>
-          <Link href="/upload">
-            <a style={{ textDecoration: 'none', color: '#1976D2' }}>Carica il File</a>
+          <Link href="/upload" style={{ textDecoration: 'none', color: '#1976D2' }}>
+            Carica il File
           </Link>
         </li>
         <li style={{ marginBottom: '1rem' }}>
-          <Link href="/editor">
-            <a style={{ textDecoration: 'none', color: '#1976D2' }}>Editor AI</a>
+          <Link href="/editor" style={{ textDecoration: 'none', color: '#1976D2' }}>
+            Editor AI
           </Link>
         </li>
       </ul>
