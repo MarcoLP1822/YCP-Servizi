@@ -15,6 +15,7 @@
  * - components/Layout.tsx: per la struttura della pagina.
  * - components/FileUploader.tsx: per la selezione e l'upload del file.
  * - context/AppContext: per recuperare il token di autenticazione dell'utente.
+ * - backend/services/fileAnalysis.ts: per la funzione di analisi tecnica e il relativo tipo DocumentAnalysis.
  *
  * @notes
  * - L'endpoint /api/upload richiede che l'utente sia autenticato, quindi viene incluso il token JWT
@@ -25,6 +26,7 @@ import React, { useState, useContext } from 'react';
 import Layout from '../components/Layout';
 import FileUploader from '../components/FileUploader';
 import { AppContext } from '../context/AppContext';
+import { analyzeDocument, DocumentAnalysis } from '../backend/services/fileAnalysis';
 
 const UploadPage: React.FC = () => {
   // Recupera le informazioni utente dal contesto per includere il token JWT nella richiesta
@@ -34,8 +36,8 @@ const UploadPage: React.FC = () => {
   const [uploadStatus, setUploadStatus] = useState<string>('');
   // Stato per memorizzare il testo estratto dal file caricato
   const [extractedText, setExtractedText] = useState<string>('');
-  // Stato per memorizzare l'analisi tecnica del file
-  const [technicalAnalysis, setTechnicalAnalysis] = useState<any>(null);
+  // Stato per memorizzare l'analisi tecnica del file, con tipo DocumentAnalysis
+  const [technicalAnalysis, setTechnicalAnalysis] = useState<DocumentAnalysis | null>(null);
 
   /**
    * Gestisce l'upload del file chiamando l'endpoint API /api/upload.
