@@ -1,17 +1,15 @@
 /**
  * @fileoverview
- * This API endpoint handles user login.
- * It accepts a POST request with email and password, verifies the credentials,
- * and returns a JWT token upon successful authentication.
+ * Questo endpoint API gestisce il login degli utenti.
+ * Riceve una richiesta POST con email e password, verifica le credenziali e ritorna un token JWT.
  *
- * Dependencies:
- * - backend/services/authService.ts: For password comparison and JWT token generation.
- * - backend/models/User.ts: For user model definitions.
- * - backend/db.ts: For database connection using Drizzle ORM.
+ * @dependencies
+ * - backend/services/authService.ts per la gestione della password e generazione del token.
+ * - backend/models/User.ts per il modello utente.
+ * - backend/db.ts per l'accesso al database con Drizzle ORM.
  *
  * @notes
- * - Ensure that the required authentication packages are installed (bcrypt, jsonwebtoken).
- * - Error handling includes validation for missing fields and invalid credentials.
+ * - Gli errori sono ora gestiti usando "unknown" invece di "any" per conformarsi alle regole ESLint.
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -64,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: user.email,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Errore durante il login:', error);
     return res.status(500).json({ error: 'Errore interno del server durante il login.' });
   }

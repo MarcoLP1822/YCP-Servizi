@@ -1,20 +1,18 @@
 /**
- * @description
- * Questo endpoint API gestisce il caricamento dei file. Valida il tipo di file (solo DOCX e PDF)
- * e la dimensione (max 30MB), quindi processa il file usando le librerie di parsing (Mammoth per DOCX e pdf-parse per PDF).
- * I metadati del file vengono salvati nel database (tramite un'istanza `db` configurata con Drizzle ORM) e il testo estratto,
- * insieme ad una analisi tecnica del documento, viene restituito nella risposta.
+ * @fileoverview
+ * Questo endpoint API gestisce il caricamento dei file.
+ * Valida il tipo di file (DOCX o PDF) e la dimensione, estrae il testo usando le librerie Mammoth o pdf-parse,
+ * esegue l'analisi tecnica e registra i metadati nel database.
  *
  * @dependencies
- * - formidable: Per il parsing dei dati multipart.
- * - fs & path: Per operazioni sul file system.
- * - backend/services/fileParser.ts: Contiene le funzioni per il parsing di file DOCX e PDF.
- * - backend/services/fileAnalysis.ts: Contiene la funzione di analisi tecnica del testo.
- * - backend/db.ts: Modulo per la connessione al database.
+ * - formidable per il parsing dei form multipart.
+ * - fs e path per operazioni sul file system.
+ * - backend/services/fileParser.ts per il parsing dei file.
+ * - backend/services/fileAnalysis.ts per l'analisi tecnica.
+ * - backend/db.ts e backend/models/File.ts per l'accesso al database.
  *
  * @notes
- * - Assicurarsi di avere installato le dipendenze necessarie (formidable, mammoth, pdf-parse, @types/formidable se disponibili).
- * - Verifica che il percorso della cartella "backend" sia incluso nel tsconfig.json.
+ * - Gli errori sono gestiti con "unknown" per conformarsi alle regole ESLint.
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -24,7 +22,6 @@ import path from 'path';
 import { parseDocx, parsePdf } from '../../backend/services/fileParser';
 import { analyzeDocument } from '../../backend/services/fileAnalysis';
 import { Files as FilesTable } from '../../backend/models/File';
-// Assumiamo che il modulo db sia configurato correttamente
 import { db } from '../../backend/db';
 
 export const config = {
@@ -33,12 +30,12 @@ export const config = {
   },
 };
 
-const MAX_FILE_SIZE = 30 * 1024 * 1024; // 30MB in bytes
+const MAX_FILE_SIZE = 30 * 1024 * 1024; // 30MB
 
 /**
- * Funzione promissificata per il parsing dei dati di form utilizzando formidable.
+ * Funzione per il parsing del form usando formidable.
  * @param req NextApiRequest
- * @returns Una Promise che risolve con i campi e i file inviati nel form.
+ * @returns Una Promise che risolve con i campi e i file del form.
  */
 const parseForm = (req: NextApiRequest): Promise<{ fields: Fields; files: Files }> => {
   return new Promise((resolve, reject) => {
@@ -47,7 +44,7 @@ const parseForm = (req: NextApiRequest): Promise<{ fields: Fields; files: Files 
       multiples: false,
       keepExtensions: true,
     });
-    form.parse(req, (err: any, fields: Fields, files: Files) => {
+    form.parse(req, (err, fields, files) => {
       if (err) return reject(err);
       resolve({ fields, files });
     });
@@ -82,8 +79,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Validazione del tipo di file (DOCX o PDF)
     const allowedMimeTypes = [
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
-      'application/pdf', // PDF
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/pdf',
     ];
     if (!allowedMimeTypes.includes(uploadedFile.mimetype || '')) {
       return res.status(400).json({ error: 'Tipo di file non supportato. Carica solo DOCX o PDF.' });
@@ -109,14 +106,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Esegue l'analisi tecnica sul testo estratto
     const technicalAnalysis = analyzeDocument(extractedText);
 
-    // Salvataggio dei metadati del file nel database (utilizzando Drizzle ORM)
-    // Nota: Sostituisci 'some-user-uuid' con l'ID reale dell'utente autenticato
+    // Salvataggio dei metadati del file nel database
+    // Nota: sostituisci 'some-user-uuid' con l'ID reale dell'utente autenticato.
     const newFile = await db.insert(FilesTable).values({
-      user_id: 'some-user-uuid', // Placeholder: sostituire con l'ID reale dell'utente
+      user_id: 'some-user-uuid',
       file_name: uploadedFile.originalFilename || 'Unknown',
       file_type: uploadedFile.mimetype || 'Unknown',
       file_size: uploadedFile.size,
-      storage_path: uploadedFile.filepath, // In produzione, sposta il file in una posizione di storage permanente.
+      storage_path: uploadedFile.filepath,
       processing_status: 'complete',
     }).returning();
 
@@ -127,7 +124,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       extractedText,
       technicalAnalysis,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Errore nel caricamento del file:', error);
     return res.status(500).json({ error: 'Errore interno del server.' });
   }

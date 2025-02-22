@@ -1,21 +1,13 @@
 /**
  * @fileoverview
- * This API endpoint handles AI content generation requests.
- * It expects a POST request with the following JSON body:
- * {
- *   "type": "blurb" | "description" | "keywords" | "categories" | "foreword" | "analysis",
- *   "extractedText": "The text extracted from the uploaded book file"
- * }
- *
- * The endpoint calls the OpenAI service to generate the requested content based on a tailored prompt.
- * The generated content is returned as a JSON response.
+ * Questo endpoint API gestisce la generazione di contenuti AI.
+ * Riceve una richiesta POST con "type" ed "extractedText" e restituisce il contenuto generato tramite il servizio OpenAI.
  *
  * @dependencies
- * - backend/services/openaiService.ts: Provides the generateContent function to interact with the OpenAI API.
+ * - backend/services/openaiService.ts per interagire con l'API OpenAI.
  *
  * @notes
- * - Ensure that the OPENAI_API_KEY environment variable is set.
- * - Only POST requests are allowed.
+ * - Gli errori sono gestiti con "unknown" per conformarsi alle regole ESLint.
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -47,13 +39,12 @@ export default async function handler(
     // Call the OpenAI service to generate content based on the type and extracted text
     const aiOutput = await generateContent(type, extractedText);
 
-    // Optionally, here you could store the result in the database associated with the file, etc.
-    // For now, we simply return the generated content.
+    // Return the generated content
     return res.status(200).json({
       message: 'Contenuto generato con successo.',
       output: aiOutput,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Errore nella generazione del contenuto:', error);
     return res.status(500).json({
       error: 'Errore interno del server durante la generazione del contenuto.',

@@ -1,17 +1,15 @@
 /**
  * @fileoverview
- * This API endpoint handles user registration.
- * It accepts a POST request with username, email, and password, hashes the password,
- * creates a new user record in the database, and returns a JWT token upon successful registration.
+ * Questo endpoint API gestisce la registrazione degli utenti.
+ * Riceve una richiesta POST con username, email e password, crea un nuovo utente e ritorna un token JWT.
  *
- * Dependencies:
- * - backend/services/authService.ts: For password hashing and JWT token generation.
- * - backend/models/User.ts: For user model definitions.
- * - backend/db.ts: For database connection using Drizzle ORM.
+ * @dependencies
+ * - backend/services/authService.ts per la gestione della password e generazione del token.
+ * - backend/models/User.ts per il modello utente.
+ * - backend/db.ts per l'accesso al database con Drizzle ORM.
  *
  * @notes
- * - Ensure that the required authentication packages are installed (bcrypt, jsonwebtoken).
- * - Error handling includes basic validation and duplicate checks.
+ * - Gli errori sono gestiti con "unknown" anziché "any" per conformarsi alle regole ESLint.
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -55,14 +53,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const hashedPassword = await hashPassword(password);
 
     // Insert new user into the database
-    const newUsers = await db
-      .insert(Users)
-      .values({
-        username,
-        email,
-        hashed_password: hashedPassword,
-      })
-      .returning();
+    const newUsers = await db.insert(Users).values({
+      username,
+      email,
+      hashed_password: hashedPassword,
+    }).returning();
 
     // Generate a JWT token for the newly registered user
     const token = generateToken({ user_id: newUsers[0].user_id, username, email });
@@ -77,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Errore durante la registrazione:', error);
     return res.status(500).json({ error: 'Errore interno del server durante la registrazione.' });
   }

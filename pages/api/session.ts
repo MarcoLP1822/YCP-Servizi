@@ -1,16 +1,15 @@
 /**
  * @fileoverview
- * This API endpoint manages session history.
- * It supports two methods:
- * - POST: Record a new session history entry with the provided user_id, file_id, and actions.
- * - GET: Retrieve session history entries for a specific user by passing user_id as a query parameter.
+ * Questo endpoint API gestisce la sessione utente.
+ * Supporta due metodi:
+ * - POST: Registra una nuova sessione con user_id, file_id e actions.
+ * - GET: Recupera le sessioni per un utente specificato tramite query parameter user_id.
  *
  * @dependencies
- * - backend/services/logService.ts: Provides the recordSessionHistory and getSessionHistory functions.
+ * - backend/services/logService.ts per registrare e recuperare la sessione.
  *
  * @notes
- * - Ensure that the incoming request contains all necessary fields.
- * - Only authenticated users should ideally access this endpoint (authentication middleware can be added later).
+ * - Gli errori sono gestiti con "unknown" per conformarsi alle regole ESLint.
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -31,14 +30,14 @@ export default async function handler(
         });
       }
 
-      // Record the session history using the log service
+      // Record the session history
       const sessionRecord = await recordSessionHistory(user_id, file_id, actions);
 
       return res.status(200).json({
         message: 'Sessione registrata con successo.',
         session: sessionRecord,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Errore nella registrazione della sessione:', error);
       return res.status(500).json({
         error: 'Errore interno del server durante la registrazione della sessione.',
@@ -46,7 +45,7 @@ export default async function handler(
     }
   } else if (req.method === 'GET') {
     try {
-      // Expect user_id as query parameter to fetch session history
+      // Expect user_id as query parameter
       const { user_id } = req.query;
       if (!user_id || typeof user_id !== 'string') {
         return res.status(400).json({
@@ -54,22 +53,20 @@ export default async function handler(
         });
       }
 
-      // Retrieve session history records for the specified user
+      // Retrieve session history for the specified user
       const sessions = await getSessionHistory(user_id);
 
       return res.status(200).json({
         message: 'Sessione recuperata con successo.',
         sessions,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Errore nel recupero della sessione:', error);
       return res.status(500).json({
         error: 'Errore interno del server durante il recupero della sessione.',
       });
     }
   } else {
-    return res
-      .status(405)
-      .json({ error: 'Metodo non consentito. Utilizzare GET o POST.' });
+    return res.status(405).json({ error: 'Metodo non consentito. Utilizzare GET o POST.' });
   }
 }

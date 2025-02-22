@@ -1,22 +1,14 @@
 /**
  * @fileoverview
- * This API endpoint handles logging of user actions.
- * It accepts a POST request with the following JSON body:
- * {
- *   "user_id": "string",
- *   "action_type": "string",
- *   "description": "string",
- *   "metadata": { ... } // Optional additional metadata
- * }
- *
- * The endpoint uses the logService to record the log entry in the database.
+ * Questo endpoint API gestisce la registrazione dei log degli utenti.
+ * Riceve una richiesta POST con user_id, action_type, description e opzionalmente metadata,
+ * e registra il log nel database.
  *
  * @dependencies
- * - backend/services/logService.ts: Provides the recordLog function.
+ * - backend/services/logService.ts per la registrazione del log.
  *
  * @notes
- * - Only POST requests are allowed.
- * - Proper error handling and validation are implemented.
+ * - Gli errori sono gestiti con "unknown" per conformarsi alle regole ESLint.
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -28,9 +20,7 @@ export default async function handler(
 ) {
   // Allow only POST requests for logging
   if (req.method !== 'POST') {
-    return res
-      .status(405)
-      .json({ error: 'Metodo non consentito. Utilizzare POST.' });
+    return res.status(405).json({ error: 'Metodo non consentito. Utilizzare POST.' });
   }
 
   try {
@@ -43,14 +33,14 @@ export default async function handler(
       });
     }
 
-    // Record the log entry using the log service, including optional metadata if provided
+    // Record the log entry
     const logEntry = await recordLog(user_id, action_type, description, metadata);
 
     return res.status(200).json({
       message: 'Log registrato con successo.',
       log: logEntry,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Errore nella registrazione del log:', error);
     return res.status(500).json({
       error: 'Errore interno del server durante la registrazione del log.',
