@@ -7,7 +7,7 @@
  *
  * @dependencies
  * - formidable per il parsing dei form multipart.
- * - fs e path per operazioni sul file system.
+ * - fs per operazioni sul file system.
  * - backend/services/fileParser.ts per il parsing dei file.
  * - backend/services/fileAnalysis.ts per l'analisi tecnica.
  * - backend/utils/fileUtils.ts per la validazione e l'estrazione dell'estensione dei file.
@@ -21,13 +21,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import formidable, { File as FormidableFile, Fields, Files } from 'formidable';
 import fs from 'fs';
-import path from 'path';
 import { parseDocx, parsePdf } from '../../backend/services/fileParser';
 import { analyzeDocument } from '../../backend/services/fileAnalysis';
 import { Files as FilesTable } from '../../backend/models/File';
 import { db } from '../../backend/db';
 import { withAuth, AuthenticatedNextApiRequest } from '../../backend/middleware/authMiddleware';
-import { validateUploadedFile, getFileExtension, allowedMimeTypes } from '../../backend/utils/fileUtils';
+import { validateUploadedFile, getFileExtension } from '../../backend/utils/fileUtils';
 
 export const config = {
   api: {
