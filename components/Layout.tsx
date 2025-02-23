@@ -1,20 +1,14 @@
 /**
  * @fileoverview
- * Questo componente definisce il layout principale dell'applicazione.
- * Esso include:
- * - Header: con branding e titolo.
- * - Sidebar: per la navigazione, integrato tramite il componente Navigation.
- * - Main Content: area per il contenuto principale delle pagine.
- * - Footer: informazioni di copyright.
- *
+ * This component defines the main layout of the application.
+ * It includes a header, sidebar (with navigation), content area, and footer.
+ * 
  * Key features:
- * - Layout responsive con struttura a griglia.
- * - Utilizzo di CSS Modules per una migliore organizzazione degli stili.
- *
- * @dependencies
- * - React: per la gestione dei componenti.
- * - Next.js: per la gestione delle pagine.
- * - components/Navigation.tsx: per il componente di navigazione.
+ * - Uses a responsive grid layout defined in Layout.module.css.
+ * - On smaller screens, the sidebar and content stack vertically.
+ * 
+ * @notes
+ * - The responsive behavior is managed by the CSS media queries in Layout.module.css.
  */
 
 import React, { ReactNode } from 'react';
@@ -25,11 +19,6 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-/**
- * Layout principale dell'applicazione.
- * @param {LayoutProps} props - Props contenenti i componenti figli.
- * @returns Il layout completo con header, sidebar, area principale e footer.
- */
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className={styles.container}>

@@ -1,20 +1,45 @@
-/* 
-  Navigation.module.css
-  This file contains the styles for the Navigation component.
-  It defines styles for the unordered list, list items, and link elements.
-*/
+/**
+ * @fileoverview
+ * This file contains the styles for the Navigation component.
+ * It defines the layout for navigation links.
+ * 
+ * Key features:
+ * - Default vertical list layout for larger screens.
+ * - Responsive design: On screens <= 768px, the list displays horizontally
+ *   with evenly spaced navigation items.
+ * 
+ * @notes
+ * - These styles enhance accessibility and usability on mobile devices.
+ */
 
-.navList {
-    list-style-type: none;
-    padding: 0;
+ .navList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.navItem {
+  margin-bottom: 1rem;
+}
+
+.link {
+  text-decoration: none;
+  color: #1976D2;
+  font-size: 1rem;
+}
+
+/* Responsive Design for screens with width <= 768px */
+@media (max-width: 768px) {
+  .navList {
+    flex-direction: row;
+    justify-content: space-around;
   }
-  
   .navItem {
-    margin-bottom: 1rem;
+    margin-bottom: 0;
   }
-  
   .link {
-    text-decoration: none;
-    color: #1976D2;
+    font-size: 0.9rem;
   }
-  
+}

@@ -1,41 +1,64 @@
-/* 
-  Layout.module.css
-  This file contains the styles for the Layout component.
-  It defines a grid-based layout with a header, sidebar, content area, and footer.
-*/
+/**
+ * @fileoverview
+ * This file defines the styles for the Layout component.
+ * It sets up a grid-based layout with a header, sidebar, content area, and footer.
+ * 
+ * Key features:
+ * - Default layout for larger screens uses a horizontal flex layout.
+ * - Responsive media queries adjust the layout for screens <= 768px.
+ *   - The main area switches to a column layout.
+ *   - The sidebar takes full width with reduced padding.
+ * 
+ * @notes
+ * - These styles follow Material Design principles and ensure optimal display
+ *   on both desktop and mobile devices.
+ */
 
-.container {
-    display: flex;
-    min-height: 100vh;
+ .container {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.header {
+  background-color: #1976D2;
+  color: #fff;
+  padding: 1rem;
+}
+
+.mainArea {
+  flex: 1;
+  display: flex; /* horizontal layout by default */
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #f5f5f5;
+  padding: 1rem;
+}
+
+.content {
+  flex: 1;
+  padding: 1rem;
+}
+
+.footer {
+  background-color: #424242;
+  color: #fff;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+/* Responsive Design for screens with width <= 768px */
+@media (max-width: 768px) {
+  .mainArea {
     flex-direction: column;
   }
-  
-  .header {
-    background-color: #1976D2;
-    color: #fff;
-    padding: 1rem;
-  }
-  
-  .mainArea {
-    flex: 1;
-    display: flex;
-  }
-  
   .sidebar {
-    width: 250px;
-    background-color: #f5f5f5;
-    padding: 1rem;
-  }
-  
-  .content {
-    flex: 1;
-    padding: 1rem;
-  }
-  
-  .footer {
-    background-color: #424242;
-    color: #fff;
+    width: 100%;
     padding: 0.5rem;
-    text-align: center;
   }
-  
+  .content {
+    padding: 0.5rem;
+  }
+}

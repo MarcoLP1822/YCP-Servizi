@@ -1,19 +1,14 @@
 /**
  * @fileoverview
- * Questo componente gestisce la navigazione laterale dell'applicazione.
- * Include link alle pagine principali: Dashboard, Caricamento file e Editor.
- *
+ * This component manages the side navigation of the application.
+ * It includes links to key pages such as Dashboard, File Upload, and AI Editor.
+ * 
  * Key features:
- * - Navigazione semplice e intuitiva.
- * - Testi in italiano per l'interfaccia.
- *
- * @dependencies
- * - React: per la gestione dei componenti.
- * - Next.js Link: per la navigazione client-side.
- * - CSS Modules: per la gestione dei CSS in modo modulare.
- *
+ * - Provides client-side navigation using Next.js Link.
+ * - The visual layout is responsive and adjusts via CSS (Navigation.module.css).
+ * 
  * @notes
- * - Ora lo stile viene gestito tramite il modulo CSS "Navigation.module.css".
+ * - No code changes were needed in this file as responsiveness is handled by the CSS.
  */
 
 import React from 'react';
