@@ -1,0 +1,27 @@
+/* 
+  LogViewer.module.css
+  This file contains the styles for the LogViewer component.
+  It defines a scrollable container and styles for the table and its cells.
+*/
+
+.container {
+    overflow-y: auto;
+    max-height: 400px;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .th {
+    border-bottom: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .td {
+    border-bottom: 1px solid #eee;
+    padding: 8px;
+  }
+  

@@ -11,12 +11,14 @@
  *
  * @dependencies
  * - React: per la gestione dello stato e degli eventi.
+ * - CSS Modules: per la gestione dei CSS in modo modulare.
  *
  * @notes
  * - I parametri onFileSelect, maxSize e allowedTypes devono essere forniti dal componente genitore.
  */
 
 import React, { useState, useRef, DragEvent, ChangeEvent } from 'react';
+import styles from './FileUploader.module.css';
 
 interface FileUploaderProps {
   onFileSelect: (file: File) => void;
@@ -112,14 +114,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect, maxSize, allo
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        style={{
-          border: '2px dashed #1976D2',
-          borderRadius: '4px',
-          padding: '20px',
-          textAlign: 'center',
-          backgroundColor: dragOver ? '#e3f2fd' : '#fff',
-          cursor: 'pointer'
-        }}
+        className={`${styles.dropArea} ${dragOver ? styles.dragOver : ''}`}
       >
         <p>Trascina qui il file o clicca per selezionarlo</p>
       </div>
@@ -130,7 +125,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect, maxSize, allo
         onChange={handleFileChange}
         accept={allowedTypes.join(',')}
       />
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className={styles.error}>{error}</p>}
     </div>
   );
 };

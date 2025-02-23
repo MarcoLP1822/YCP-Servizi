@@ -1,0 +1,23 @@
+/* 
+  FileUploader.module.css
+  This file contains the styles for the FileUploader component.
+  It includes styles for the drop area, its drag-over state, and error messages.
+*/
+
+.dropArea {
+    border: 2px dashed #1976D2;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    background-color: #fff;
+    cursor: pointer;
+  }
+  
+  .dragOver {
+    background-color: #e3f2fd;
+  }
+  
+  .error {
+    color: red;
+  }
+  

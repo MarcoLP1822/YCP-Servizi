@@ -1,0 +1,41 @@
+/* 
+  Layout.module.css
+  This file contains the styles for the Layout component.
+  It defines a grid-based layout with a header, sidebar, content area, and footer.
+*/
+
+.container {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+  
+  .header {
+    background-color: #1976D2;
+    color: #fff;
+    padding: 1rem;
+  }
+  
+  .mainArea {
+    flex: 1;
+    display: flex;
+  }
+  
+  .sidebar {
+    width: 250px;
+    background-color: #f5f5f5;
+    padding: 1rem;
+  }
+  
+  .content {
+    flex: 1;
+    padding: 1rem;
+  }
+  
+  .footer {
+    background-color: #424242;
+    color: #fff;
+    padding: 0.5rem;
+    text-align: center;
+  }
+  

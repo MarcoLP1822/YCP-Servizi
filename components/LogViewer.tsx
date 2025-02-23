@@ -9,6 +9,7 @@
  *
  * @dependencies
  * - React: per il rendering degli elementi della lista.
+ * - CSS Modules: per la gestione dei CSS in modo modulare.
  *
  * @notes
  * - I dati dei log devono essere forniti come proprietà (props) in un array di oggetti
@@ -16,6 +17,7 @@
  */
 
 import React from 'react';
+import styles from './LogViewer.module.css';
 
 interface Log {
   log_id: string;
@@ -30,25 +32,25 @@ interface LogViewerProps {
 
 const LogViewer: React.FC<LogViewerProps> = ({ logs }) => {
   return (
-    <div style={{ overflowY: 'auto', maxHeight: '400px' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+    <div className={styles.container}>
+      <table className={styles.table}>
         <thead>
           <tr>
-            <th style={{ borderBottom: '1px solid #ccc', padding: '8px', textAlign: 'left' }}>Timestamp</th>
-            <th style={{ borderBottom: '1px solid #ccc', padding: '8px', textAlign: 'left' }}>Azione</th>
-            <th style={{ borderBottom: '1px solid #ccc', padding: '8px', textAlign: 'left' }}>Descrizione</th>
+            <th className={styles.th}>Timestamp</th>
+            <th className={styles.th}>Azione</th>
+            <th className={styles.th}>Descrizione</th>
           </tr>
         </thead>
         <tbody>
           {logs.map((log) => (
             <tr key={log.log_id}>
-              <td style={{ borderBottom: '1px solid #eee', padding: '8px' }}>
+              <td className={styles.td}>
                 {new Date(log.timestamp).toLocaleString()}
               </td>
-              <td style={{ borderBottom: '1px solid #eee', padding: '8px' }}>
+              <td className={styles.td}>
                 {log.action_type}
               </td>
-              <td style={{ borderBottom: '1px solid #eee', padding: '8px' }}>
+              <td className={styles.td}>
                 {log.description}
               </td>
             </tr>

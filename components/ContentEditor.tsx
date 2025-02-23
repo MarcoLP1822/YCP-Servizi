@@ -9,13 +9,14 @@
  *
  * @dependencies
  * - React: per la gestione degli eventi e dello stato.
+ * - CSS Modules: per la gestione dei CSS in modo modulare.
  *
  * @notes
- * - L'implementazione attuale utilizza una textarea semplice.
- *   In futuro si può integrare un editor di testo avanzato (ad es. react-quill).
+ * - Il componente ora utilizza il modulo CSS "ContentEditor.module.css" per i suoi stili.
  */
 
 import React from 'react';
+import styles from './ContentEditor.module.css';
 
 interface ContentEditorProps {
   content: string;
@@ -30,27 +31,9 @@ const ContentEditor: React.FC<ContentEditorProps> = ({ content, onChange, onRege
         value={content}
         onChange={(e) => onChange(e.target.value)}
         rows={10}
-        style={{
-          width: '100%',
-          padding: '1rem',
-          borderRadius: '4px',
-          border: '1px solid #ccc',
-          fontSize: '16px',
-          fontFamily: 'Roboto, sans-serif'
-        }}
+        className={styles.textarea}
       />
-      <button
-        onClick={onRegenerate}
-        style={{
-          alignSelf: 'flex-start',
-          backgroundColor: '#FFC107',
-          color: '#000',
-          padding: '0.5rem 1rem',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
-      >
+      <button onClick={onRegenerate} className={styles.button}>
         Rigenera Contenuto
       </button>
     </div>
