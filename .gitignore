@@ -11,7 +11,7 @@
 
 # next.js
 /.next/
-/out/
+ /out/
 
 # production
 /build
@@ -24,6 +24,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.log
 
 # local env files
 .env*.local
@@ -34,3 +35,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE/Editor folders (optional)
+.vscode/
+.idea/

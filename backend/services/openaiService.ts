@@ -1,28 +1,21 @@
 /**
  * @fileoverview
  * This service handles interactions with the OpenAI API for generating AI content.
- * This version has been modularized to provide separate functions for each content type:
- * - generateBlurb, generateDescription, generateKeywords, generateCategories, generateForeword, generateAnalysis.
- * Each function constructs a tailored prompt and calls a private helper function to perform the API call.
- *
- * Key features:
- * - Modular functions for each content generation type.
- * - Centralized helper function for API calls, ensuring consistent error handling and configuration.
+ * It provides separate functions for each content type (blurb, description, keywords, categories, foreword, analysis)
+ * and uses a centralized helper function to perform the API call with proper error handling.
  *
  * @dependencies
- * - fetch (native in Node.js or via polyfill in Next.js) for HTTP requests.
+ * - fetch for HTTP requests.
  *
  * @notes
  * - Ensure that the environment variable OPENAI_API_KEY is set.
- * - Configuration for temperature and max_tokens is handled via environment variables with defaults.
+ * - The response from OpenAI is now strongly typed using the defined interfaces.
  */
 
 export type GenerationType = 'blurb' | 'description' | 'keywords' | 'categories' | 'foreword' | 'analysis';
 
-// Retrieve the global API key from environment variables
 const OPENAI_API_KEY: string = process.env.OPENAI_API_KEY || '';
 
-// Define a mapping for per-generation-type configuration settings
 const generationConfig: Record<GenerationType, { temperature: number; max_tokens: number }> = {
   blurb: {
     temperature: process.env.OPENAI_BLURB_TEMPERATURE ? parseFloat(process.env.OPENAI_BLURB_TEMPERATURE) : 0.7,
@@ -51,12 +44,27 @@ const generationConfig: Record<GenerationType, { temperature: number; max_tokens
 };
 
 /**
+ * Interface representing a single choice in the OpenAI API response.
+ */
+interface OpenAIChoice {
+  message: {
+    content: string;
+  };
+}
+
+/**
+ * Interface representing the structure of the OpenAI API response.
+ */
+interface OpenAIResponse {
+  choices: OpenAIChoice[];
+}
+
+/**
  * Private helper function to generate content using the OpenAI API.
  *
  * @param prompt - The prompt to send to the API.
- * @param type - The generation type, used for configuration.
+ * @param type - The generation type, used to select the appropriate configuration.
  * @returns A promise that resolves with the generated content as a string.
- * @throws Will throw an error if the API call fails or the response is invalid.
  */
 async function _generateContent(prompt: string, type: GenerationType): Promise<string> {
   if (!OPENAI_API_KEY) {
@@ -96,7 +104,7 @@ async function _generateContent(prompt: string, type: GenerationType): Promise<s
       throw new Error(`Errore nella chiamata all'API OpenAI: ${response.status} - ${errorDetails}`);
     }
 
-    const data = await response.json();
+    const data: OpenAIResponse = await response.json();
     const generatedText = data.choices && data.choices[0]?.message?.content;
     if (!generatedText) {
       throw new Error('Risposta dell\'API OpenAI non valida.');

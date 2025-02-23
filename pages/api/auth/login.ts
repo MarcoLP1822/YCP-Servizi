@@ -1,22 +1,19 @@
 /**
  * @fileoverview
- * Questo endpoint API gestisce il login degli utenti. Riceve una richiesta POST con
- * email e password, verifica le credenziali e ritorna un token JWT. L'endpoint è
- * stato refattorizzato per utilizzare il wrapper centralizzato per la gestione degli errori.
+ * This endpoint API handles user login. It receives a POST request with email and password,
+ * verifies the credentials, and returns a JWT token along with user information.
  *
  * Key features:
- * - Validazione degli input.
- * - Verifica delle credenziali con la funzione comparePassword.
- * - Generazione di un token JWT per l'utente autenticato.
+ * - Input validation.
+ * - Password comparison using comparePassword.
+ * - JWT token generation.
  *
  * @dependencies
- * - backend/services/authService.ts per la gestione delle password e la generazione del token.
- * - backend/models/User.ts per il modello utente.
- * - backend/db.ts per l'accesso al database.
- * - backend/utils/errorHandler.ts per la gestione centralizzata degli errori.
- *
- * @notes
- * - L'endpoint supporta solo il metodo POST.
+ * - backend/services/authService.ts for password handling and token generation.
+ * - backend/models/User.ts for the user model.
+ * - backend/db.ts for database access.
+ * - backend/utils/errorHandler.ts for centralized error handling.
+ * - types/api.d.ts for API response types.
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -25,44 +22,45 @@ import { Users } from '../../../backend/models/User';
 import { db } from '../../../backend/db';
 import { eq } from 'drizzle-orm';
 import { withErrorHandling } from '../../../backend/utils/errorHandler';
+import type { ApiResponse, LoginResponse } from '../../../types/api';
 
 interface LoginRequestBody {
   email: string;
   password: string;
 }
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<LoginResponse>>) => {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Metodo non consentito. Utilizzare POST.' });
+    return res.status(405).json({ message: '', error: 'Metodo non consentito. Utilizzare POST.' });
   }
 
   const { email, password } = req.body as LoginRequestBody;
   if (!email || !password) {
-    return res.status(400).json({ error: 'Campi "email" e "password" sono obbligatori.' });
+    return res.status(400).json({ message: '', error: 'Campi "email" e "password" sono obbligatori.' });
   }
 
-  // Recupera l'utente dal database usando l'email
+  // Retrieve the user from the database using the email
   const users = await db.select().from(Users).where(eq(Users.email, email));
   if (users.length === 0) {
-    return res.status(401).json({ error: 'Credenziali non valide.' });
+    return res.status(401).json({ message: '', error: 'Credenziali non valide.' });
   }
   const user = users[0];
 
-  // Confronta la password fornita con quella memorizzata
+  // Compare provided password with stored hashed password
   const isPasswordValid = await comparePassword(password, user.hashed_password);
   if (!isPasswordValid) {
-    return res.status(401).json({ error: 'Credenziali non valide.' });
+    return res.status(401).json({ message: '', error: 'Credenziali non valide.' });
   }
 
-  // Genera un token JWT per l'utente autenticato
+  // Generate a JWT token for the authenticated user
   const token = generateToken({ user_id: user.user_id, username: user.username, email: user.email });
   return res.status(200).json({
     message: 'Accesso effettuato con successo.',
-    token,
-    user: {
+    data: {
       user_id: user.user_id,
       username: user.username,
       email: user.email,
+      token,
     },
   });
 };

@@ -2,38 +2,39 @@
  * @fileoverview
  * This API endpoint handles AI content generation requests.
  * It expects a POST request with "type" and "extractedText" fields.
- * The endpoint dispatches the request to the appropriate content generation function
- * in the modularized OpenAI service.
- *
- * Key features:
- * - Supports generation types: blurb, description, keywords, categories, foreword, analysis.
- * - Returns generated content or error responses.
+ * Based on the "type", it dispatches the request to the appropriate OpenAI service function.
  *
  * @dependencies
- * - Functions from backend/services/openaiService.ts for content generation.
- *
- * @notes
- * - Ensure that the incoming request has valid "type" and "extractedText" fields.
+ * - backend/services/openaiService.ts for content generation functions.
+ * - types/api.d.ts for API response types.
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { generateBlurb, generateDescription, generateKeywords, generateCategories, generateForeword, generateAnalysis } from '../../backend/services/openaiService';
+import {
+  generateBlurb,
+  generateDescription,
+  generateKeywords,
+  generateCategories,
+  generateForeword,
+  generateAnalysis,
+} from '../../backend/services/openaiService';
+import type { ApiResponse, GenerateResponse } from '../../types/api';
 
 interface GenerateRequestBody {
   type: 'blurb' | 'description' | 'keywords' | 'categories' | 'foreword' | 'analysis';
   extractedText: string;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<GenerateResponse>>) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Metodo non consentito. Utilizzare POST.' });
+    return res.status(405).json({ message: '', error: 'Metodo non consentito. Utilizzare POST.' });
   }
 
   try {
     const { type, extractedText } = req.body as GenerateRequestBody;
 
     if (!type || !extractedText) {
-      return res.status(400).json({ error: 'Campi "type" e "extractedText" sono obbligatori.' });
+      return res.status(400).json({ message: '', error: 'Campi "type" e "extractedText" sono obbligatori.' });
     }
 
     let output: string = '';
@@ -58,15 +59,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         output = await generateAnalysis(extractedText);
         break;
       default:
-        return res.status(400).json({ error: 'Tipo di generazione non supportato.' });
+        return res.status(400).json({ message: '', error: 'Tipo di generazione non supportato.' });
     }
 
     return res.status(200).json({
       message: 'Contenuto generato con successo.',
-      output,
+      data: { output },
     });
   } catch (error: unknown) {
     console.error('Errore nella generazione del contenuto:', error);
-    return res.status(500).json({ error: 'Errore interno del server durante la generazione del contenuto.' });
+    return res.status(500).json({ message: '', error: 'Errore interno del server durante la generazione del contenuto.' });
   }
 }
