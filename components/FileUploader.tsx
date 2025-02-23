@@ -5,7 +5,7 @@
  * con validazione basata sui tipi di file consentiti e la dimensione massima.
  *
  * Key features:
- * - Supporto drag-and-drop e click-to-upload.
+ * - Supporto drag-and-drop, click-to-upload e interazione tramite tastiera.
  * - Validazione del file (dimensione e tipo).
  * - Visualizzazione di messaggi di errore se la validazione fallisce.
  *
@@ -17,7 +17,7 @@
  * - I parametri onFileSelect, maxSize e allowedTypes devono essere forniti dal componente genitore.
  */
 
-import React, { useState, useRef, DragEvent, ChangeEvent } from 'react';
+import React, { useState, useRef, DragEvent, ChangeEvent, KeyboardEvent } from 'react';
 import styles from './FileUploader.module.css';
 
 interface FileUploaderProps {
@@ -107,6 +107,17 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect, maxSize, allo
     }
   };
 
+  /**
+   * Gestisce gli eventi della tastiera per attivare il click con Enter o Space.
+   * @param e Evento della tastiera.
+   */
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
     <div>
       <div
@@ -114,6 +125,10 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect, maxSize, allo
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
+        onKeyDown={handleKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-label="Carica il file: trascina qui il file o clicca per selezionarlo"
         className={`${styles.dropArea} ${dragOver ? styles.dragOver : ''}`}
       >
         <p>Trascina qui il file o clicca per selezionarlo</p>
