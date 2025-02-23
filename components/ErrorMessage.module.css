@@ -1,0 +1,23 @@
+/**
+ * @fileoverview
+ * This CSS module provides standardized styling for error messages.
+ * It ensures that error messages are displayed with a consistent look across the application.
+ *
+ * Key features:
+ * - Red text with a light red background.
+ * - Padding, border, and margin for clear separation from other UI elements.
+ *
+ * @notes
+ * - These styles can be modified to fit the overall theme of the app.
+ */
+
+ .errorMessage {
+    color: #d32f2f;
+    background-color: #ffebee;
+    border: 1px solid #f44336;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+  

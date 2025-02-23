@@ -7,11 +7,12 @@
  * Key features:
  * - Supporto drag-and-drop, click-to-upload e interazione tramite tastiera.
  * - Validazione del file (dimensione e tipo).
- * - Visualizzazione di messaggi di errore se la validazione fallisce.
+ * - Visualizzazione di messaggi di errore standardizzati utilizzando il componente ErrorMessage.
  *
  * @dependencies
  * - React: per la gestione dello stato e degli eventi.
  * - CSS Modules: per la gestione dei CSS in modo modulare.
+ * - components/ErrorMessage.tsx: per visualizzare messaggi di errore in modo consistente.
  *
  * @notes
  * - I parametri onFileSelect, maxSize e allowedTypes devono essere forniti dal componente genitore.
@@ -19,6 +20,7 @@
 
 import React, { useState, useRef, DragEvent, ChangeEvent, KeyboardEvent } from 'react';
 import styles from './FileUploader.module.css';
+import ErrorMessage from './ErrorMessage';
 
 interface FileUploaderProps {
   onFileSelect: (file: File) => void;
@@ -26,16 +28,16 @@ interface FileUploaderProps {
   allowedTypes: string[];
 }
 
+/**
+ * Valida il file in base alla dimensione e al tipo.
+ * @param file Il file da validare.
+ * @returns true se il file è valido, false altrimenti.
+ */
 const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect, maxSize, allowedTypes }) => {
   const [dragOver, setDragOver] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  /**
-   * Valida il file in base alla dimensione e al tipo.
-   * @param file Il file da validare.
-   * @returns true se il file è valido, false altrimenti.
-   */
   const validateFile = (file: File): boolean => {
     if (file.size > maxSize) {
       setError(`Il file supera il limite di ${maxSize / (1024 * 1024)}MB.`);
@@ -49,19 +51,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect, maxSize, allo
     return true;
   };
 
-  /**
-   * Gestisce il file se la validazione ha successo.
-   * @param file Il file da processare.
-   */
   const handleFile = (file: File) => {
     if (validateFile(file)) {
       onFileSelect(file);
     }
   };
 
-  /**
-   * Gestisce l'evento di drop dei file.
-   */
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragOver(false);
@@ -72,25 +67,16 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect, maxSize, allo
     }
   };
 
-  /**
-   * Gestisce l'evento di trascinamento sopra l'area di drop.
-   */
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragOver(true);
   };
 
-  /**
-   * Gestisce l'evento di uscita del trascinamento dall'area di drop.
-   */
   const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragOver(false);
   };
 
-  /**
-   * Gestisce il cambio del file tramite input.
-   */
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -98,19 +84,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect, maxSize, allo
     }
   };
 
-  /**
-   * Attiva il click sul file input nascosto.
-   */
   const handleClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  /**
-   * Gestisce gli eventi della tastiera per attivare il click con Enter o Space.
-   * @param e Evento della tastiera.
-   */
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -140,7 +119,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect, maxSize, allo
         onChange={handleFileChange}
         accept={allowedTypes.join(',')}
       />
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <ErrorMessage message={error} />}
     </div>
   );
 };
