@@ -4,68 +4,72 @@
  * including password hashing, password comparison, JWT token generation, and verification.
  *
  * Key features:
- * - Uses bcrypt for secure password hashing and verification.
- * - Uses jsonwebtoken for JWT token generation and verification.
+ * - Secure password hashing and comparison using bcrypt.
+ * - JWT token generation and verification using jsonwebtoken.
  *
  * @dependencies
- * - bcrypt: For hashing and comparing passwords.
- * - jsonwebtoken: For generating and verifying JWT tokens.
+ * - bcrypt: Used for hashing and comparing passwords.
+ * - jsonwebtoken: Used for generating and verifying JWT tokens.
  *
  * @notes
  * - Ensure that the environment variable JWT_SECRET is set in your .env file.
- * - In production, make sure to use a strong secret and proper error handling.
+ * - In production, use a strong secret and implement robust error handling.
  */
 
 import bcrypt from 'bcrypt';
 import jwt, { SignOptions } from 'jsonwebtoken';
 
-// Set bcrypt salt rounds
+// Constant for bcrypt salt rounds used during hashing
 const SALT_ROUNDS = 10;
 
-// Get JWT secret from environment variables; fallback is provided for development purposes only.
+// Retrieve JWT secret from environment variables; use a fallback for development only.
 const JWT_SECRET: string = process.env.JWT_SECRET || 'default_jwt_secret';
 
 /**
  * Hashes a plain text password using bcrypt.
  *
- * @param password - The plain text password.
- * @returns A promise that resolves to the hashed password.
+ * @param {string} password - The plain text password to be hashed.
+ * @returns {Promise<string>} A promise that resolves to the hashed password.
  */
 export async function hashPassword(password: string): Promise<string> {
+  // Hash the password using the defined number of salt rounds.
   return bcrypt.hash(password, SALT_ROUNDS);
 }
 
 /**
  * Compares a plain text password with a hashed password.
  *
- * @param password - The plain text password.
- * @param hashedPassword - The hashed password.
- * @returns A promise that resolves to true if the password matches, false otherwise.
+ * @param {string} password - The plain text password to compare.
+ * @param {string} hashedPassword - The hashed password for comparison.
+ * @returns {Promise<boolean>} A promise that resolves to true if the passwords match, otherwise false.
  */
 export async function comparePassword(password: string, hashedPassword: string): Promise<boolean> {
+  // Compare the provided password with the stored hashed password.
   return bcrypt.compare(password, hashedPassword);
 }
 
 /**
- * Generates a JWT token for a given user payload.
+ * Generates a JWT token for a given payload.
  *
- * @param payload - The payload to embed in the token.
- * @param expiresIn - Token expiry time (default is '1h').
- * @returns A signed JWT token.
+ * @param {object} payload - The payload to encode in the JWT token.
+ * @param {string} [expiresIn='1h'] - Optional expiration time for the token.
+ * @returns {string} A signed JWT token string.
  */
 export function generateToken(payload: object, expiresIn: string = '1h'): string {
-  // Cast expiresIn to any to bypass type checking issues with the expiresIn field.
+  // Create signing options with the specified expiration time.
   const options: SignOptions = { expiresIn: expiresIn as any };
+  // Sign the token using the JWT_SECRET and return the token string.
   return jwt.sign(payload, JWT_SECRET, options);
 }
 
 /**
- * Verifies a given JWT token.
+ * Verifies a JWT token and returns its decoded payload.
  *
- * @param token - The JWT token to verify.
- * @returns The decoded payload if the token is valid.
- * @throws An error if the token is invalid or expired.
+ * @param {string} token - The JWT token to verify.
+ * @returns {any} The decoded token payload if verification is successful.
+ * @throws Will throw an error if the token is invalid or expired.
  */
 export function verifyToken(token: string): any {
+  // Verify and decode the token using the JWT_SECRET.
   return jwt.verify(token, JWT_SECRET);
 }
