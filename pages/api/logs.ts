@@ -23,17 +23,23 @@ import { db } from '../../backend/db';
 import { Logs } from '../../backend/models/Log';
 // Import the helper for descending order from Drizzle ORM.
 import { desc } from 'drizzle-orm';
-import type { ApiResponse, LogResponse } from '../../types/api';
+import type { ApiResponse, LogResponse, LogEntry } from '../../types/api';
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse<LogResponse | { logs: any[] }>>
+  res: NextApiResponse<ApiResponse<LogResponse | { logs: LogEntry[] }>>
 ) {
   if (req.method === 'GET') {
     // Handle GET requests: Retrieve all log entries ordered by timestamp (latest first)
     try {
       // Query the Logs table and order by the timestamp field in descending order using the `desc` helper.
-      const logs = await db.select().from(Logs).orderBy(desc(Logs.timestamp));
+      const logsRaw = await db.select().from(Logs).orderBy(desc(Logs.timestamp));
+      // Map the raw logs to ensure that timestamp is a string and description is a non-null string.
+      const logs: LogEntry[] = logsRaw.map((log) => ({
+        ...log,
+        timestamp: log.timestamp ? log.timestamp.toISOString() : "",
+        description: log.description ?? "",
+      }));
       return res.status(200).json({
         message: 'Logs recuperati con successo.',
         data: { logs },
