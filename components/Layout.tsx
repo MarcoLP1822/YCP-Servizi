@@ -42,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <small>© {new Date().getFullYear()} YCP Servizi. Tutti i diritti riservati.</small>
+        <small>© {new Date().getFullYear()} Marco Luigi Palma. Tutti i diritti riservati.</small>
       </footer>
     </div>
   );
