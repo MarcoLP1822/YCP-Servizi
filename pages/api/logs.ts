@@ -1,50 +1,70 @@
 /**
  * @fileoverview
  * This API endpoint handles logging user actions.
- * It supports:
- * - POST: To record a new log entry.
- * - GET: To retrieve all log entries ordered by timestamp (most recent first).
+ * It supports two methods:
+ * - POST: Records a new log entry using the provided user_id, action_type, description, and optional metadata.
+ * - GET: Retrieves all log entries from the Logs table, ordered by timestamp (most recent first).
  *
  * @dependencies
- * - backend/services/logService.ts for recording logs (POST).
- * - backend/db.ts and backend/models/Log.ts for querying logs (GET).
- * - types/api.d.ts for API response types.
+ * - backend/services/logService.ts: Used for recording log entries (POST).
+ * - backend/models/Log.ts: The Logs model for interacting with the Logs table.
+ * - backend/db.ts: The database connection instance for querying logs.
+ * - types/api.d.ts: Provides type definitions for the API responses.
+ *
+ * @notes
+ * - GET requests will return a JSON object with a "logs" field containing an array of log entries.
+ * - POST requests require the fields: user_id, action_type, and description.
+ * - In case of errors, appropriate status codes and error messages are returned.
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { recordLog } from '../../backend/services/logService';
-import type { ApiResponse, LogResponse } from '../../types/api';
 import { db } from '../../backend/db';
 import { Logs } from '../../backend/models/Log';
+// Import the helper for descending order from Drizzle ORM.
 import { desc } from 'drizzle-orm';
+import type { ApiResponse, LogResponse, LogEntry } from '../../types/api';
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse<LogResponse> | ApiResponse<{ logs: any[] }>>
+  res: NextApiResponse<ApiResponse<LogResponse | { logs: LogEntry[] }>>
 ) {
-  // Handle GET requests: Retrieve and return all log entries ordered by timestamp.
   if (req.method === 'GET') {
+    // Handle GET requests: Retrieve all log entries ordered by timestamp (latest first)
     try {
-      // Query the Logs table and order by timestamp in descending order (most recent first)
-      const logs = await db.select().from(Logs).orderBy(Logs.timestamp, desc);
+      // Query the Logs table and order by the timestamp field in descending order using the `desc` helper.
+      const logsRaw = (await db.select().from(Logs).orderBy(desc(Logs.timestamp))) as Array<{
+        log_id: string;
+        timestamp: Date | string | null;
+        action_type: string;
+        description?: string | null;
+      }>;
+      
+      // Map the raw logs to ensure that timestamp is a string and description is a non-null string.
+      const logs: LogEntry[] = logsRaw.map((log) => ({
+        ...log,
+        timestamp: log.timestamp
+          ? (log.timestamp instanceof Date ? log.timestamp.toISOString() : String(log.timestamp))
+          : "",
+        description: log.description ?? "",
+      }));
       return res.status(200).json({
-        message: 'Log recuperati con successo.',
+        message: 'Logs recuperati con successo.',
         data: { logs },
       });
-    } catch (error: unknown) {
-      console.error('Errore nel recupero dei log:', error);
+    } catch (error) {
+      console.error('Errore nel recupero dei logs:', error);
       return res.status(500).json({
         message: '',
-        error: 'Errore interno del server durante il recupero dei log.',
+        error: 'Errore interno del server durante il recupero dei logs.',
       });
     }
-  }
-
-  // Handle POST requests: Record a new log entry.
-  if (req.method === 'POST') {
+  } else if (req.method === 'POST') {
+    // Handle POST requests: Record a new log entry.
     try {
       const { user_id, action_type, description, metadata } = req.body;
 
+      // Validate that the required fields are provided.
       if (!user_id || !action_type || !description) {
         return res.status(400).json({
           message: '',
@@ -52,21 +72,22 @@ export default async function handler(
         });
       }
 
+      // Record the log entry using the recordLog service function.
       const logEntry = await recordLog(user_id, action_type, description, metadata);
 
       return res.status(200).json({
         message: 'Log registrato con successo.',
         data: { log: logEntry },
       });
-    } catch (error: unknown) {
+    } catch (error) {
       console.error('Errore nella registrazione del log:', error);
       return res.status(500).json({
         message: '',
         error: 'Errore interno del server durante la registrazione del log.',
       });
     }
+  } else {
+    // If the request method is not GET or POST, return a 405 error.
+    return res.status(405).json({ message: '', error: 'Metodo non consentito. Utilizzare GET o POST.' });
   }
-
-  // If the method is neither GET nor POST, return a 405 error.
-  return res.status(405).json({ message: '', error: 'Metodo non consentito. Utilizzare GET o POST.' });
 }
